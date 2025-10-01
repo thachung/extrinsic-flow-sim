@@ -4,29 +4,22 @@ import matplotlib.pyplot as plt
 from scipy.sparse import diags
 from scipy.sparse.linalg import spsolve
 
-
-# Define the 3D curve X(theta)
-def gamma(t):
-    return [3 * np.cos(t), 0.9 * np.sin(t)]
-
-
 # Parameters
 N = 2000  # Number of points
 dt = 0.01  # Time step
 T = 10  # Total simulation time
 steps = int(T / dt)  # Number of time steps
 L = 2 * np.pi  # Total length (assumed for uniform spacing)
-plot_every = steps // 5  # Plot at intervals
+plot_every = steps // 8  # Plot at intervals
 
 
 # Create initial curve
 t = np.linspace(0, 2 * np.pi - 1e-10, N)
-# x = 2*gamma(t)[0]/(1+gamma(t)[0]**2+gamma(t)[1]**2)
-# y = 2*gamma(t)[1]/(1+gamma(t)[0]**2+gamma(t)[1]**2)
-# z = (-1+gamma(t)[0]**2+gamma(t)[1]**2)/(1+gamma(t)[0]**2+gamma(t)[1]**2)
-x = 3 * np.cos(t) + 2 * np.cos(3 * t)
-y = 3 * np.sin(t) - 2 * np.sin(3 * t)
-z = 3 * np.sin(2 * t)
+R = 5.0
+a = 3.0
+x = R * np.cos(t)
+y = R * np.sin(t)
+z = a * np.sin(t)
 curve = np.vstack((x, y, z)).T  # Shape (N, 3)
 
 
@@ -36,7 +29,8 @@ def reparametrize(x, y, z):
     dx = np.roll(x, -1) - x
     dy = np.roll(y, -1) - y
     dz = np.roll(z, -1) - z
-    ds = np.sqrt(dx**2 + dy**2 + dz**2)
+    # calculate the norm by the Lorentz metric
+    ds = np.sqrt(dx**2 + dy**2 - dz**2)
     s = np.cumsum(ds)
     s = np.insert(s, 0, 0)
     s /= s[-1]  # Normalize to [0,1]
@@ -53,7 +47,7 @@ def reparametrize(x, y, z):
     dx_new = np.roll(x_new, -1) - x_new
     dy_new = np.roll(y_new, -1) - y_new
     dz_new = np.roll(z_new, -1) - z_new
-    ds = np.sqrt(dx_new**2 + dy_new**2 + dz_new**2)
+    ds = np.sqrt(dx_new**2 + dy_new**2 - dz_new**2)
     return x_new, y_new, z_new, np.mean(ds)
 
 
