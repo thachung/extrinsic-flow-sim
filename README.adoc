@@ -1,0 +1,23 @@
+= Extrinsic Flows Simulation Library
+A collection of code and examples for simulating extrinsic flows.
+
+== Dependencies
+This library requires the following Python packages:
+
+* numpy
+* scipy
+* matplotlib
+* tqdm
+
+== Running the Code
+Install dependencies and run the scripts.
+
+
+== Interactive Figures in Jupyter Notebooks
+Add ``%matplotlib ipympl`` before importing matplotlib to enable interactive figures in Jupyter notebooks. This requires the ``ipympl`` package to be installed.
+
+== Acknowledgements
+
+
+== GenAI Disclaimer
+Part of code and documentation in this project has been generated with the help of generative AI tools.

@@ -1,0 +1,13 @@
+= Curve Shortening Flow (CSF)
+:showtitle: true
+:stem: latexmath
+
+== Overview
+A family of curve \(\gamma : S^1 \times [0,T) \to \mathbb{R}^2\) is said to evolve under curve shortening flow if it satisfies the following PDE:
+\[\frac{\partial \gamma}{\partial t} = \vec{\kappa}.\]
+The code in this repository simulates the evolution given a closed initial curve \(\gamma_0\) under CSF using a semi-implicit Euler time stepping for the time discretization and a finite difference method for the curvature calculation.
+
+== Implementation Details
+
+== Known Issues
+All results are currently off by some constant factor.
