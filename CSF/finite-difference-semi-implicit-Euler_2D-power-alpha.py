@@ -6,10 +6,11 @@ from tqdm import tqdm
 
 # Parameters
 N = 2000  # Number of points on the curve
-T = 1  # Total simulation time
+T = 0.5  # Total simulation time
 dt = 0.01  # Time step
 steps = int(T / dt)  # Number of time steps
 plot_every = steps // 10  # Plot at intervals
+alpha = 0.3333  # Power of curvature in the flow
 
 
 # Initial curve: ellipse
@@ -41,7 +42,7 @@ L = laplacian_matrix(N)
 # For plotting
 plt.figure(figsize=(8, 8))
 plt.axis("equal")
-plt.title(f"Curve Shortening Flow (Semi-Implicit Scheme)")
+plt.title(f"Curve Shortening Flow (Semi-Implicit Scheme) with power {alpha}")
 plt.xlabel("x")
 plt.ylabel("y")
 
@@ -89,16 +90,21 @@ x, y, ds = reparametrize(x, y)
 # Time evolution
 for step in tqdm(range(1, steps + 1)):
     L_ds = (1 / ds**2) * L
-    x = x * 1000
-    y = y * 1000
-    A = diags_array([1], offsets=[0], shape=(N, N), format="csr") - (dt / ds**2) * L
+    x = x * 100
+    y = y * 100
+    k = np.sqrt((L_ds @ x) ** 2 + (L_ds @ y) ** 2) ** (
+        alpha - 1
+    )  # Curvature magnitude to the power alpha-1
+    A = diags_array([1], offsets=[0], shape=(N, N), format="csr") - (dt / ds**2) * (
+        diags_array([k], offsets=[0], shape=(N, N), format="csr") @ L
+    )
     x_new = spsolve(A, x)
     y_new = spsolve(A, y)
     # Reparametrize to maintain uniform spacing
     x, y, ds = reparametrize(x_new, y_new)
-    x = x / 1000
-    y = y / 1000
-    ds = ds / 1000
+    x = x / (100**alpha)
+    y = y / (100**alpha)
+    ds = ds / (100**alpha)
     # Plot at intervals
     if step % plot_every == 0 or step == steps:
         plt.plot(x, y, label=f"t={step*dt:.2f}")

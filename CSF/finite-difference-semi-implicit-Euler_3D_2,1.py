@@ -1,7 +1,7 @@
 import copy
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.sparse import diags
+from scipy.sparse import diags_array
 from scipy.sparse.linalg import spsolve
 
 # Parameters
@@ -14,7 +14,7 @@ plot_every = steps // 8  # Plot at intervals
 
 
 # Create initial curve
-t = np.linspace(0, 2 * np.pi - 1e-10, N)
+t = np.linspace(0 + 1e-10, 2 * np.pi - 1e-10, N, endpoint=False)
 R = 5.0
 a = 3.0
 x = R * np.cos(t)
@@ -36,7 +36,7 @@ def reparametrize(x, y, z):
     s /= s[-1]  # Normalize to [0,1]
 
     # Uniform parameter values
-    s_uniform = np.linspace(0, 1 - 1e-10, N)
+    s_uniform = np.linspace(0 + 1e-10, 1 - 1e-10, N, endpoint=False)
 
     # Interpolate to uniform spacing
     x_new = np.interp(s_uniform, s[:-1], x)
@@ -84,13 +84,13 @@ ax1.set_zlim(min_limit, max_limit)
 # Precompute Laplacian matrix
 main_diag = -2 * np.ones(N)
 off_diag = np.ones(N - 1)
-laplacian = diags([off_diag, main_diag, off_diag], [-1, 0, 1], shape=(N, N))
+laplacian = diags_array([off_diag, main_diag, off_diag], offsets=[-1, 0, 1], shape=(N, N))
 laplacian = laplacian.tolil()
 laplacian[0, -1] = 1
 laplacian[-1, 0] = 1
 laplacian = laplacian.tocsr()
 laplacian_ds = laplacian / (ds**2)
-A = (diags([1.0], [0], shape=(N, N)) - dt * laplacian_ds).tocsc()
+A = (diags_array([1.0], offsets=[0], shape=(N, N)) - dt * laplacian_ds).tocsc()
 
 
 # Time evolution using semi-implicit Euler
@@ -99,7 +99,7 @@ for step in range(1, steps + 1):
         curve_new[:, dim] = spsolve(A, curve[:, dim])
     x, y, z, ds = reparametrize(curve_new[:, 0], curve_new[:, 1], curve_new[:, 2])
     laplacian_ds = laplacian / (ds**2)
-    A = (diags([1.0], [0], shape=(N, N)) - dt * laplacian_ds).tocsc()
+    A = (diags_array([1.0], offsets=[0], shape=(N, N)) - dt * laplacian_ds).tocsc()
     curve = np.vstack([x, y, z]).T
     # Plot at intervals
     if step % plot_every == 0 or step == steps:
